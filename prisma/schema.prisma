@@ -6,3 +6,61 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id           Int        @id @default(autoincrement())
+  name         String
+  phone_number String
+  password     String
+  created_at   DateTime   @default(now())
+  updated_at   DateTime   @updatedAt
+  Post         Post[]
+  Comment      Comment[]
+  Like         Like[]
+  Reaction     Reaction[]
+}
+
+model Post {
+  id         String     @id @default(uuid())
+  title      String
+  content    String
+  user_id    Int
+  user       User       @relation(fields: [user_id], references: [id])
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
+  Comment    Comment[]
+  Like       Like[]
+  Reaction   Reaction[]
+}
+
+model Comment {
+  id         String   @id @default(uuid())
+  content    String
+  user_id    Int
+  post_id    String
+  user       User     @relation(fields: [user_id], references: [id])
+  post       Post     @relation(fields: [post_id], references: [id])
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Like {
+  id         String   @id @default(uuid())
+  user_id    Int
+  post_id    String
+  user       User     @relation(fields: [user_id], references: [id])
+  post       Post     @relation(fields: [post_id], references: [id])
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Reaction {
+  id            String   @id @default(uuid())
+  reaction_type String
+  user_id       Int
+  post_id       String
+  user          User     @relation(fields: [user_id], references: [id])
+  post          Post     @relation(fields: [post_id], references: [id])
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+}
