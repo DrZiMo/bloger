@@ -1,22 +1,24 @@
 import { Request, Response } from "express";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient()
 
 interface ICreateUsers {
-    id: number;
     name: string;
     phone_number: string;
     password: string;
 }
 
-let users: ICreateUsers[] = [
-    {
-        id: 1,
-        name: "zuhayb",
-        phone_number: "567890",
-        password: "123456"
-    }
-]
+interface IUploadUser {
+    user_id: number;
+    name: string;
+    phone_number: string;
+    password: string;
+}
 
-export const getAllUsers = (req: Request, res: Response) => {
+// get all users
+export const getAllUsers = async (req: Request, res: Response) => {
+    const users = await prisma.user.findMany()
     try {
         if (users.length === 0) {
             res.status(404).json({
@@ -42,6 +44,165 @@ export const getAllUsers = (req: Request, res: Response) => {
         })
 
         return
+    }
+
+    return
+}
+
+//get single user
+export const getSingleUser = async (req: Request, res: Response) => {
+    try {
+        const userId = req.params.id
+        const user = await prisma.user.findFirst({
+            where: {
+                id: +userId
+            }
+        })
+
+        if (!user) {
+            res.status(404).json({
+                isSuccess: false,
+                message: "User is not found!"
+            })
+
+            return
+        }
+
+        res.status(200).json({
+            isSuccess: true,
+            user
+        })
+    } catch (error) {
+        console.log("Error: " + error)
+        res.status(500).json({
+            isSuccess: false,
+            message: "Server error!"
+        })
+    }
+
+    return
+}
+
+// create new user
+export const createNewUser = async (req: Request, res: Response) => {
+    try {
+        const { name, phone_number, password } = req.body as ICreateUsers
+
+        if (!name || !phone_number || !password) {
+            res.status(400).json({
+                isSuccess: false,
+                message: "Fill all the inputs"
+            })
+
+            return
+        }
+
+        const newUser = await prisma.user.create({
+            data: {
+                name,
+                phone_number,
+                password
+            }
+        })
+
+        res.status(200).json({
+            isSuccess: true,
+            user: newUser
+        })
+    } catch (error) {
+        console.log("Error: " + error)
+        res.status(500).json({
+            isSuccess: false,
+            message: "Server error!"
+        })
+    }
+
+    return
+}
+
+// delete user
+export const deleteUser = async (req: Request, res: Response) => {
+    try {
+        const userId = req.params.id
+        const user = await prisma.user.findFirst({
+            where: {
+                id: +userId
+            }
+        })
+
+        if (!user) {
+            res.status(404).json({
+                isSuccess: false,
+                message: "The user is not found"
+            })
+
+            return
+        }
+
+        const deletedUser = await prisma.user.delete({
+            where: {
+                id: user.id
+            }
+        })
+
+        res.status(200).json({
+            isSuccess: true,
+            user: deletedUser
+        })
+
+        return
+    } catch (error) {
+        console.log("Error: " + error)
+        res.status(500).json({
+            isSuccess: false,
+            message: "Server error!"
+        })
+
+        return
+    }
+}
+
+//update user
+export const updateUser = async (req: Request, res: Response) => {
+    try {
+        const { user_id, name, phone_number, password } = req.body as IUploadUser
+
+        const user = await prisma.user.findFirst({
+            where: {
+                id: user_id
+            }
+        })
+
+        if (!user) {
+            res.status(404).json({
+                isSuccess: false,
+                message: "User is not found!"
+            })
+
+            return
+        }
+
+        const updateUser = await prisma.user.update({
+            where: {
+                id: user.id
+            },
+            data: {
+                name,
+                phone_number,
+                password
+            }
+        })
+
+        res.status(200).json({
+            isSuccess: true,
+            user
+        })
+    } catch (error) {
+        console.log("Error: " + error)
+        res.status(500).json({
+            isSuccess: false,
+            message: "Server error!"
+        })
     }
 
     return

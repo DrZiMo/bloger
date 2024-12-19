@@ -5,6 +5,8 @@ import usersRoute from "../router/usersRouter"
 const app = express()
 dotenv.config()
 
+app.use(express.json())
+
 app.use("/users", usersRoute)
 
 // listening to the port
