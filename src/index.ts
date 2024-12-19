@@ -1,8 +1,11 @@
 import express from "express"
 import dotenv from "dotenv"
+import usersRoute from "../router/usersRouter"
 
 const app = express()
 dotenv.config()
+
+app.use("/users", usersRoute)
 
 // listening to the port
 const PORT = process.env.PORT
