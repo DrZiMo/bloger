@@ -15,13 +15,14 @@ interface IUpdatePost {
     content: string;
 }
 
-// get all users
+// get all posts
 export const getAllPosts = async (req: Request, res: Response) => {
     const posts = await prisma.post.findMany({
         include: {
             _count: {
                 select: {
-                    Comment: true
+                    Comment: true,
+                    Like: true
                 }
             },
             Comment: {
@@ -30,7 +31,13 @@ export const getAllPosts = async (req: Request, res: Response) => {
                     content: true
                 }
             },
-            Like: true,
+            Like: {
+                select: {
+                    id: true,
+                    user_id: true,
+                    post_id: true
+                }
+            },
             Reaction: true
         }
     })
@@ -60,7 +67,7 @@ export const getAllPosts = async (req: Request, res: Response) => {
     }
 }
 
-//get single user
+//get single post
 export const getSinglePost = async (req: Request, res: Response) => {
     try {
         const postId = req.params.id
@@ -71,7 +78,8 @@ export const getSinglePost = async (req: Request, res: Response) => {
             include: {
                 _count: {
                     select: {
-                        Comment: true
+                        Comment: true,
+                        Like: true
                     }
                 },
                 Comment: {
@@ -80,7 +88,13 @@ export const getSinglePost = async (req: Request, res: Response) => {
                         content: true
                     }
                 },
-                Like: true,
+                Like: {
+                    select: {
+                        id: true,
+                        user_id: true,
+                        post_id: true
+                    }
+                },
                 Reaction: true
             }
         })
@@ -88,7 +102,7 @@ export const getSinglePost = async (req: Request, res: Response) => {
         if (!post) {
             res.status(404).json({
                 isSuccess: false,
-                message: "User is not found!"
+                message: "Post is not found!"
             })
 
             return
@@ -109,7 +123,7 @@ export const getSinglePost = async (req: Request, res: Response) => {
     return
 }
 
-// create new user
+// create new post
 export const createNewPost = async (req: Request, res: Response) => {
     try {
         const { title, content, user_id } = req.body as ICreatePosts
@@ -148,7 +162,7 @@ export const createNewPost = async (req: Request, res: Response) => {
     }
 }
 
-// delete user
+// delete post
 export const deletePost = async (req: Request, res: Response) => {
     try {
         const postId = req.params.id
@@ -190,7 +204,7 @@ export const deletePost = async (req: Request, res: Response) => {
     }
 }
 
-//update user
+//update post
 export const updatePost = async (req: Request, res: Response) => {
     try {
         const { title, content, post_id } = req.body as IUpdatePost
