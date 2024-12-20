@@ -3,6 +3,7 @@ import dotenv from "dotenv"
 import usersRoute from "../router/usersRouter"
 import postsRoute from "../router/postsRouter"
 import likesRoute from "../router/likesRouter"
+import reactionsRoute from "../router/reactionRouter"
 import commentsRoute from "../router/commentsRouter"
 
 const app = express()
@@ -13,6 +14,7 @@ app.use(express.json())
 app.use("/users", usersRoute)
 app.use("/posts", postsRoute)
 app.use("/likes", likesRoute)
+app.use("/reactions", reactionsRoute)
 app.use("/comments", commentsRoute)
 
 // listening to the port

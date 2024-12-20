@@ -20,6 +20,18 @@ interface IUpdateUser {
 export const getAllUsers = async (req: Request, res: Response) => {
     const users = await prisma.user.findMany({
         include: {
+            _count: {
+                select: {
+                    Post: true
+                }
+            },
+            Post: {
+                select: {
+                    id: true,
+                    title: true,
+                    content: true
+                }
+            },
             Like: {
                 select: {
                     id: true,
