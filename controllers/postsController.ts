@@ -22,7 +22,8 @@ export const getAllPosts = async (req: Request, res: Response) => {
             _count: {
                 select: {
                     Comment: true,
-                    Like: true
+                    Like: true,
+                    Reaction: true
                 }
             },
             Comment: {
@@ -79,7 +80,8 @@ export const getSinglePost = async (req: Request, res: Response) => {
                 _count: {
                     select: {
                         Comment: true,
-                        Like: true
+                        Like: true,
+                        Reaction: true
                     }
                 },
                 Comment: {
@@ -160,6 +162,8 @@ export const createNewPost = async (req: Request, res: Response) => {
 
         return
     }
+
+    return
 }
 
 // delete post
