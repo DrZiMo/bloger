@@ -1,10 +1,10 @@
 import { Router } from "express"
-import { createNewUPost, deletePost, getAllPosts, getSinglePost, updatePost } from "../controllers/postsController"
+import { createNewPost, deletePost, getAllPosts, getSinglePost, updatePost } from "../controllers/postsController"
 const router = Router()
 
 router.get("/list", getAllPosts)
 router.get("/detail/:id", getSinglePost)
-router.post("/create", createNewUPost)
+router.post("/create", createNewPost)
 router.delete("/delete/:id", deletePost)
 router.put("/update", updatePost)
 

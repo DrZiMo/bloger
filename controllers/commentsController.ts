@@ -3,47 +3,31 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient()
 
-interface ICreateUsers {
-    name: string;
-    phone_number: string;
-    password: string;
+interface ICreateComment {
+    content: string;
+    user_id: number;
+    post_id: string;
 }
 
-interface IUpdateUser {
-    user_id: number;
-    name: string;
-    phone_number: string;
-    password: string;
+interface IUpdateComment {
+    comment_id: string;
+    content: string;
 }
 
 // get all users
-export const getAllUsers = async (req: Request, res: Response) => {
-    const users = await prisma.user.findMany({
-        include: {
-            Like: true,
-            Reaction: true,
-            Comment: {
-                select: {
-                    id: true,
-                    content: true,
-                    post_id: true
-                }
-            }
-        }
-    })
+export const getAllComment = async (req: Request, res: Response) => {
+    const comments = await prisma.comment.findMany()
     try {
-        if (users.length === 0) {
+        if (comments.length === 0) {
             res.status(404).json({
                 isSuccess: false,
-                message: "There is no users registered"
+                message: "There is no comments registered"
             })
-
-            return
         }
 
         res.status(200).json({
             isSuccess: true,
-            users
+            comments
         })
 
         return
@@ -57,40 +41,30 @@ export const getAllUsers = async (req: Request, res: Response) => {
 
         return
     }
-
-    return
 }
 
 //get single user
-export const getSingleUser = async (req: Request, res: Response) => {
+export const getSingleComment = async (req: Request, res: Response) => {
     try {
-        const userId = req.params.id
-        const user = await prisma.user.findFirst({
+        const commentId = req.params.id
+        const comment = await prisma.comment.findFirst({
             where: {
-                id: +userId
+                id: commentId
             },
             include: {
-                Post: {
+                user: {
                     select: {
                         id: true,
-                        title: true,
-                        content: true
-                    }
-                },
-                Comment: {
-                    select: {
-                        id: true,
-                        content: true,
-                        post_id: true
+                        name: true
                     }
                 }
             }
         })
 
-        if (!user) {
+        if (!comment) {
             res.status(404).json({
                 isSuccess: false,
-                message: "User is not found!"
+                message: "Comment is not found!"
             })
 
             return
@@ -98,8 +72,10 @@ export const getSingleUser = async (req: Request, res: Response) => {
 
         res.status(200).json({
             isSuccess: true,
-            user
+            comment
         })
+
+        return
     } catch (error) {
         console.log("Error: " + error)
         res.status(500).json({
@@ -112,11 +88,11 @@ export const getSingleUser = async (req: Request, res: Response) => {
 }
 
 // create new user
-export const createNewUser = async (req: Request, res: Response) => {
+export const createNewComment = async (req: Request, res: Response) => {
     try {
-        const { name, phone_number, password } = req.body as ICreateUsers
+        const { content, user_id, post_id } = req.body as ICreateComment
 
-        if (!name || !phone_number || !password) {
+        if (!post_id || !content || !user_id) {
             res.status(400).json({
                 isSuccess: false,
                 message: "Fill all the inputs"
@@ -125,57 +101,59 @@ export const createNewUser = async (req: Request, res: Response) => {
             return
         }
 
-        const newUser = await prisma.user.create({
+        const newComment = await prisma.comment.create({
             data: {
-                name,
-                phone_number,
-                password
+                content,
+                post_id,
+                user_id
             }
         })
 
         res.status(200).json({
             isSuccess: true,
-            user: newUser
+            user: newComment
         })
+
+        return
     } catch (error) {
         console.log("Error: " + error)
         res.status(500).json({
             isSuccess: false,
             message: "Server error!"
         })
-    }
 
-    return
+        return
+    }
 }
 
 // delete user
-export const deleteUser = async (req: Request, res: Response) => {
+export const deleteComment = async (req: Request, res: Response) => {
     try {
-        const userId = req.params.id
-        const user = await prisma.user.findFirst({
+        const commentId = req.params.id
+        const comment = await prisma.comment.findFirst({
             where: {
-                id: +userId
+                id: commentId
             }
         })
 
-        if (!user) {
+        if (!comment) {
             res.status(404).json({
                 isSuccess: false,
-                message: "The user is not found"
+                message: "The comment is not found"
             })
 
             return
         }
 
-        const deletedUser = await prisma.user.delete({
+        const deletedComment = await prisma.comment.delete({
             where: {
-                id: user.id
+                id: comment.id
             }
         })
 
         res.status(200).json({
             isSuccess: true,
-            user: deletedUser
+            comment: deletedComment
         })
 
         return
@@ -191,39 +169,37 @@ export const deleteUser = async (req: Request, res: Response) => {
 }
 
 //update user
-export const updateUser = async (req: Request, res: Response) => {
+export const updateComment = async (req: Request, res: Response) => {
     try {
-        const { user_id, name, phone_number, password } = req.body as IUpdateUser
+        const { content, comment_id } = req.body as IUpdateComment
 
-        const user = await prisma.user.findFirst({
+        const comment = await prisma.comment.findFirst({
             where: {
-                id: user_id
+                id: comment_id
             }
         })
 
-        if (!user) {
+        if (!comment) {
             res.status(404).json({
                 isSuccess: false,
-                message: "User is not found!"
+                message: "comment is not found!"
             })
 
             return
         }
 
-        const updateUser = await prisma.user.update({
+        const updateComment = await prisma.comment.update({
             where: {
-                id: user.id
+                id: comment.id
             },
             data: {
-                name,
-                phone_number,
-                password
+                content
             }
         })
 
         res.status(200).json({
             isSuccess: true,
-            user: updateUser
+            comment: updateComment
         })
     } catch (error) {
         console.log("Error: " + error)

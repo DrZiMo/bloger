@@ -19,6 +19,17 @@ interface IUpdatePost {
 export const getAllPosts = async (req: Request, res: Response) => {
     const posts = await prisma.post.findMany({
         include: {
+            _count: {
+                select: {
+                    Comment: true
+                }
+            },
+            Comment: {
+                select: {
+                    id: true,
+                    content: true
+                }
+            },
             Like: true,
             Reaction: true
         }
@@ -58,12 +69,19 @@ export const getSinglePost = async (req: Request, res: Response) => {
                 id: postId
             },
             include: {
-                user: {
+                _count: {
+                    select: {
+                        Comment: true
+                    }
+                },
+                Comment: {
                     select: {
                         id: true,
-                        name: true
+                        content: true
                     }
-                }
+                },
+                Like: true,
+                Reaction: true
             }
         })
 
@@ -92,7 +110,7 @@ export const getSinglePost = async (req: Request, res: Response) => {
 }
 
 // create new user
-export const createNewUPost = async (req: Request, res: Response) => {
+export const createNewPost = async (req: Request, res: Response) => {
     try {
         const { title, content, user_id } = req.body as ICreatePosts
 
