@@ -26,6 +26,13 @@ export const getAllPosts = async (req: Request, res: Response) => {
                     Reaction: true
                 }
             },
+            Reaction: {
+                select: {
+                    id: true,
+                    reaction_type: true,
+                    user_id: true
+                }
+            },
             Comment: {
                 select: {
                     id: true,
@@ -35,11 +42,9 @@ export const getAllPosts = async (req: Request, res: Response) => {
             Like: {
                 select: {
                     id: true,
-                    user_id: true,
-                    post_id: true
+                    user_id: true
                 }
-            },
-            Reaction: true
+            }
         }
     })
     try {

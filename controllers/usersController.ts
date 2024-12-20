@@ -42,7 +42,13 @@ export const getAllUsers = async (req: Request, res: Response) => {
                     post_id: true
                 }
             },
-            Reaction: true,
+            Reaction: {
+                select: {
+                    id: true,
+                    reaction_type: true,
+                    post_id: true
+                }
+            },
             Comment: {
                 select: {
                     id: true,
@@ -113,7 +119,13 @@ export const getSingleUser = async (req: Request, res: Response) => {
                         post_id: true
                     }
                 },
-                Reaction: true,
+                Reaction: {
+                    select: {
+                        id: true,
+                        reaction_type: true,
+                        post_id: true
+                    }
+                },
                 Comment: {
                     select: {
                         id: true,
