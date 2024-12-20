@@ -3,35 +3,37 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient()
 
-interface ICreateUsers {
-    name: string;
-    phone_number: string;
-    password: string;
+interface ICreatePosts {
+    title: string;
+    content: string;
+    user_id: number;
 }
 
-interface IUpdateUser {
-    user_id: number;
-    name: string;
-    phone_number: string;
-    password: string;
+interface IUpdatePost {
+    post_id: string;
+    title: string;
+    content: string;
 }
 
 // get all users
-export const getAllUsers = async (req: Request, res: Response) => {
-    const users = await prisma.user.findMany()
+export const getAllPosts = async (req: Request, res: Response) => {
+    const posts = await prisma.post.findMany({
+        include: {
+            Like: true,
+            Reaction: true
+        }
+    })
     try {
-        if (users.length === 0) {
+        if (posts.length === 0) {
             res.status(404).json({
                 isSuccess: false,
-                message: "There is no users registered"
+                message: "There is no posts registered"
             })
-
-            return
         }
 
         res.status(200).json({
             isSuccess: true,
-            users
+            posts
         })
 
         return
@@ -45,24 +47,27 @@ export const getAllUsers = async (req: Request, res: Response) => {
 
         return
     }
-
-    return
 }
 
 //get single user
-export const getSingleUser = async (req: Request, res: Response) => {
+export const getSinglePost = async (req: Request, res: Response) => {
     try {
-        const userId = req.params.id
-        const user = await prisma.user.findFirst({
+        const postId = req.params.id
+        const post = await prisma.post.findFirst({
             where: {
-                id: +userId
+                id: postId
             },
             include: {
-                Post: true
+                user: {
+                    select: {
+                        id: true,
+                        name: true
+                    }
+                }
             }
         })
 
-        if (!user) {
+        if (!post) {
             res.status(404).json({
                 isSuccess: false,
                 message: "User is not found!"
@@ -73,7 +78,7 @@ export const getSingleUser = async (req: Request, res: Response) => {
 
         res.status(200).json({
             isSuccess: true,
-            user
+            post
         })
     } catch (error) {
         console.log("Error: " + error)
@@ -87,11 +92,11 @@ export const getSingleUser = async (req: Request, res: Response) => {
 }
 
 // create new user
-export const createNewUser = async (req: Request, res: Response) => {
+export const createNewUPost = async (req: Request, res: Response) => {
     try {
-        const { name, phone_number, password } = req.body as ICreateUsers
+        const { title, content, user_id } = req.body as ICreatePosts
 
-        if (!name || !phone_number || !password) {
+        if (!title || !content || !user_id) {
             res.status(400).json({
                 isSuccess: false,
                 message: "Fill all the inputs"
@@ -100,57 +105,59 @@ export const createNewUser = async (req: Request, res: Response) => {
             return
         }
 
-        const newUser = await prisma.user.create({
+        const newPost = await prisma.post.create({
             data: {
-                name,
-                phone_number,
-                password
+                title,
+                content,
+                user_id
             }
         })
 
         res.status(200).json({
             isSuccess: true,
-            user: newUser
+            user: newPost
         })
+
+        return
     } catch (error) {
         console.log("Error: " + error)
         res.status(500).json({
             isSuccess: false,
             message: "Server error!"
         })
-    }
 
-    return
+        return
+    }
 }
 
 // delete user
-export const deleteUser = async (req: Request, res: Response) => {
+export const deletePost = async (req: Request, res: Response) => {
     try {
-        const userId = req.params.id
-        const user = await prisma.user.findFirst({
+        const postId = req.params.id
+        const post = await prisma.post.findFirst({
             where: {
-                id: +userId
+                id: postId
             }
         })
 
-        if (!user) {
+        if (!post) {
             res.status(404).json({
                 isSuccess: false,
-                message: "The user is not found"
+                message: "The post is not found"
             })
 
             return
         }
 
-        const deletedUser = await prisma.user.delete({
+        const deletedPost = await prisma.post.delete({
             where: {
-                id: user.id
+                id: post.id
             }
         })
 
         res.status(200).json({
             isSuccess: true,
-            user: deletedUser
+            post: deletedPost
         })
 
         return
@@ -166,39 +173,38 @@ export const deleteUser = async (req: Request, res: Response) => {
 }
 
 //update user
-export const updateUser = async (req: Request, res: Response) => {
+export const updatePost = async (req: Request, res: Response) => {
     try {
-        const { user_id, name, phone_number, password } = req.body as IUpdateUser
+        const { title, content, post_id } = req.body as IUpdatePost
 
-        const user = await prisma.user.findFirst({
+        const post = await prisma.post.findFirst({
             where: {
-                id: user_id
+                id: post_id
             }
         })
 
-        if (!user) {
+        if (!post) {
             res.status(404).json({
                 isSuccess: false,
-                message: "User is not found!"
+                message: "Post is not found!"
             })
 
             return
         }
 
-        const updateUser = await prisma.user.update({
+        const updatePost = await prisma.post.update({
             where: {
-                id: user.id
+                id: post.id
             },
             data: {
-                name,
-                phone_number,
-                password
+                title,
+                content,
             }
         })
 
         res.status(200).json({
             isSuccess: true,
-            user: updateUser
+            post: updatePost
         })
     } catch (error) {
         console.log("Error: " + error)

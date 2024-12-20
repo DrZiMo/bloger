@@ -3,7 +3,7 @@ import { createNewUser, deleteUser, getAllUsers, getSingleUser, updateUser } fro
 const route = Router()
 
 route.get("/list", getAllUsers)
-route.get("detail/:id", getSingleUser)
+route.get("/detail/:id", getSingleUser)
 route.post("/create", createNewUser)
 route.delete("/delete/:id", deleteUser)
 route.put("/update", updateUser)
